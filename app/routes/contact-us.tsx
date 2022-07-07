@@ -65,7 +65,7 @@ const Contact = () => {
             </div>
           )}
           <div className="text-sm text-center">
-            <Link to="/" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
               Go back
             </Link>
           </div>
