@@ -1,12 +1,9 @@
-import { ErrorMessage, useField } from 'formik'
-
 const inputClass =
   'appearance-none block w-full py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
 
 const Input = (props: any) => {
-  const [field, meta] = useField(props)
-  const { name, label, type } = props
-  const errorClass = meta.touched && meta.error ? 'error' : ''
+  const { error, name, label, type } = props
+  const errorClass = error ? 'border border-red-500' : ''
 
   return (
     <div className="mb-6">
@@ -17,13 +14,22 @@ const Input = (props: any) => {
         <input
           className={`
             ${inputClass}
-            ${errorClass ? 'border border-red-500' : ''}
+            ${errorClass}
           `}
           type={type}
-          {...field}
+          {...props}
         />
       </div>
-      <ErrorMessage name={name} component="p" className="font-medium text-sm text-red-600 mt-1" />
+
+      {error ? (
+        <p
+          className="form-validation-error font-medium text-sm text-red-600 mt-1"
+          role="alert"
+          id={`${name}-error`}
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }
