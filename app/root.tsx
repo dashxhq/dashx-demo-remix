@@ -22,7 +22,8 @@ export function links() {
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
   title: "DashX demo Remix",
-  viewport: "width=device-width,initial-scale=1"
+  viewport: "width=device-width,initial-scale=1",
+  description: "DashX Demo App using Remix.js"
 })
 
 export default function App() {
