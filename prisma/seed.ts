@@ -1,0 +1,19 @@
+import { PrismaClient } from "@prisma/client"
+
+const db = new PrismaClient()
+
+async function seed() {
+  // John Smith is a default user with the password 'twixrox'
+  db.user.create({
+    data: {
+      firstName: "John",
+      lastName: "Smith",
+      email: "johnsmit@gmail.com",
+      // this is a hashed version of "twixrox"
+      passwordHash:
+        "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u"
+    }
+  })
+}
+
+seed()

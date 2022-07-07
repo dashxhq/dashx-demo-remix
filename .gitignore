@@ -18,6 +18,9 @@
 # package
 package-lock.json
 
+# prisma
+/prisma/dev.db
+
 # misc
 .DS_Store
 .env
