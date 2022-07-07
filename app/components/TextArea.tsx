@@ -1,9 +1,6 @@
-import { ErrorMessage, useField } from 'formik'
-
 const TextArea = (props: any) => {
-  const [field, meta] = useField(props)
-  const { name, label } = props
-  const errorClass = meta.touched && meta.error ? 'error' : ''
+  const { error, name, label, type } = props
+  const errorClass = error ? 'border border-red-500' : ''
 
   return (
     <div className="mt-1 sm:mt-0 sm:col-span-2">
@@ -11,15 +8,24 @@ const TextArea = (props: any) => {
         {label}
       </label>
       <textarea
-        {...field}
         rows={5}
+        type={type}
+        {...props}
         className={`
-          max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500
-          sm:text-sm border border-gray-300 rounded-md mt-1
-          ${errorClass ? 'border border-red-500' : ''}
+        max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500
+        sm:text-sm border border-gray-300 rounded-md mt-1
+        ${errorClass ? 'border border-red-500' : ''}
         `}
       />
-      <ErrorMessage name={name} component="p" className="font-medium text-sm text-red-600 mt-1" />
+      {error ? (
+        <p
+          className="form-validation-error font-medium text-sm text-red-600 mt-1"
+          role="alert"
+          id={`${name}-error`}
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }
