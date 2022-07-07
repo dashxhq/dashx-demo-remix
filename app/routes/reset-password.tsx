@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
-import { Link, useSearchParams } from "@remix-run/react"
+import { Link, useActionData, useSearchParams } from '@remix-run/react'
+import type { ActionFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 
-import * as Yup from 'yup'
-import { Form, Formik } from 'formik'
+import { resetPassword } from '~/utils/session.server'
+import { validateEmail, validatePassword } from '~/utils/validation'
 
 import FormHeader from '../components/FormHeader'
 import AlertBox from '../components/AlertBox'
@@ -10,15 +11,54 @@ import SuccessBox from '../components/SuccessBox'
 import Input from '../components/Input'
 import Button from '../components/Button'
 
-const ResetPassword = () => {
-  const [successMessage, setSuccessMessage] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [params] = useSearchParams()
-
-  const handleSubmit = () => {
-
+type ActionData = {
+  formError?: string
+  fieldErrors?: {
+    email: string | undefined
+    password: string | undefined
   }
+  fields?: {
+    email: string
+    password: string
+  }
+}
+
+const badRequest = (data: ActionData) => json(data, { status: 400 })
+
+export const action: ActionFunction = async ({ request }) => {
+  const form = await request.formData()
+  const email = form.get('email')
+  const password = form.get('password')
+
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return badRequest({
+      formError: `Form not submitted correctly.`
+    })
+  }
+
+  const fields = { email, password }
+  const fieldErrors = {
+    email: validateEmail(email),
+    password: validatePassword(password)
+  }
+
+  if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
+
+  const error = await resetPassword({ email, password })
+
+  if (error) {
+    return {
+      fields,
+      formError: error
+    }
+  }
+
+  return { successMessage : 'Password changed successfully' }
+}
+
+const ResetPassword = () => {
+  const actionData = useActionData()
+  const successMessage = actionData?.successMessage
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 m-auto">
@@ -29,31 +69,30 @@ const ResetPassword = () => {
             <SuccessBox successMessage={successMessage} />
           </div>
         )}
-        {error && (
+        {actionData?.formError && (
           <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-            <AlertBox alertMessage={error} />
+            <AlertBox alertMessage={actionData?.formError} />
           </div>
         )}
-        {!successMessage && !error && (
-          <Formik
-            initialValues={{
-              password: ''
-            }}
-            validationSchema={Yup.object({
-              password: Yup.string().required('New Password is required')
-            })}
-            onSubmit={() => {
-              handleSubmit()
-            }}
-          >
-            <Form>
-              <Input label="New Password" type="password" name="password" />
-              <Button type="submit" label="Submit" loading={loading} />
-            </Form>
-          </Formik>
+        {!successMessage && !actionData?.formError && (
+          <form method='post'>
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              error={actionData?.fieldErrors?.email}
+            />
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              error={actionData?.fieldErrors?.password}
+            />
+            <Button type="submit" label="Submit" />
+          </form>
         )}
         <div className="text-sm text-center pt-6">
-          <Link to="/" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
             Back to Login
           </Link>
         </div>
