@@ -2,9 +2,10 @@ import { useActionData, Link, useTransition } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 
+import dashx from '~/utils/dashx'
+import { db } from '~/utils/db.server'
 import { validateEmail, validatePassword, validateName } from '~/utils/validation'
 import { register } from '~/utils/session.server'
-import { db } from '~/utils/db.server'
 
 import Button from '../components/Button'
 import Input from '../components/Input'
@@ -30,7 +31,7 @@ type ActionData = {
 const badRequest = (data: ActionData) => json(data, { status: 400 })
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
+  const form: FormData = await request.formData()
 
   const firstName = form.get('firstname')
   const lastName = form.get('lastname')
@@ -58,9 +59,9 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
 
-  const existingUser = await db.user.findFirst({ where: { email } })
+  const ifExistingUser = await db.user.findFirst({ where: { email } })
 
-  if (existingUser) {
+  if (ifExistingUser) {
     return {
       fields,
       formError: `User with email ${email} already exists`
@@ -75,8 +76,20 @@ export const action: ActionFunction = async ({ request }) => {
       formError: `Something went wrong trying to create a new user.`
     }
   }
+  const userData = { firstName, lastName, email }
+  
+  try { 
+    await dashx.identify(user.id, userData)
+    await dashx.track('User Registered', user.id, userData)
+  }
+  catch (error) {
+    return {
+      fields,
+      formError: `Something went wrong with DashX API.`
+    }
+  }
 
-  return 'Registration successfull'
+  return 'User Registered'
 }
 
 const Register = () => {

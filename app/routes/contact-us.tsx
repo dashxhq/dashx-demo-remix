@@ -1,8 +1,4 @@
-import { useState } from 'react'
 import { Link } from "@remix-run/react"
-
-import { Form, Formik } from 'formik'
-import * as Yup from 'yup'
 
 import AlertBox from '../components/AlertBox'
 import Button from '../components/Button'
@@ -12,14 +8,8 @@ import TextArea from '../components/TextArea'
 import SuccessBox from '../components/SuccessBox'
 
 const Contact = () => {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
-
-  const handleSubmit = () => {
-
-  }
-
+  let error, successMessage
+  
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <FormHeader>Contact Us</FormHeader>
@@ -37,31 +27,15 @@ const Contact = () => {
           )}
           {!successMessage && (
             <div className="py-8 pt-1 px-4 sm:px-10">
-              <Formik
-                initialValues={{
-                  name: '',
-                  email: '',
-                  feedback: ''
-                }}
-                validationSchema={Yup.object({
-                  name: Yup.string().required('Name is required'),
-                  email: Yup.string().email('Invalid email address').required('Email is required'),
-                  feedback: Yup.string().required('Feedback is required')
-                })}
-                onSubmit={() => {
-                  handleSubmit()
-                }}
-              >
-                <Form>
+                <form>
                   <Input label="Name" type="text" name="name" />
                   <Input label="Email" type="email" name="email" />
                   <TextArea label="Send us a message" name="feedback" />
 
                   <div className="mt-7">
-                    <Button type="submit" label="Submit" loading={loading} />
+                    <Button type="submit" label="Submit" />
                   </div>
-                </Form>
-              </Formik>
+                </form>
             </div>
           )}
           <div className="text-sm text-center">
