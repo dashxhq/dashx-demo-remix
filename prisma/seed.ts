@@ -4,7 +4,7 @@ const db = new PrismaClient()
 
 async function seed() {
   // John Smith is a default user with the password 'twixrox'
-  db.user.create({
+  await db.user.create({
     data: {
       firstName: "John",
       lastName: "Smith",
