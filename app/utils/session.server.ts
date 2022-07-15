@@ -29,6 +29,8 @@ type LoginType = {
   password: string
 }
 
+const getUserSession = (request: Request) => storage.getSession(request.headers.get('Cookie'))
+
 export async function register({ firstName, lastName, email, password }: RegisterType) {
   const passwordHash: string = await bcrypt.hash(password, 10)
 
@@ -83,6 +85,47 @@ export async function createUserSession(userId: string, redirectTo: string) {
   return redirect(redirectTo, {
     headers: {
       'Set-Cookie': await storage.commitSession(session)
+    }
+  })
+}
+
+export async function getUserId(request: Request) {
+  const session = await getUserSession(request)
+  const userId = session.get('userId')
+
+  if (typeof userId !== 'string') return null
+  return userId
+}
+
+export async function requireUserId(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+) {
+  const userId = await getUserId(request)
+
+  if (!userId) {
+    const params = new URLSearchParams([['redirectTo', redirectTo]])
+
+    throw redirect(`/login?${params}`)
+  }
+
+  return userId
+}
+
+export async function getUser(request: Request) {
+  const userId = await getUserId(request)
+
+  if (!userId) return null
+
+  return db.user.findUnique({ where: { id: userId } })
+}
+
+export async function logout(request: Request) {
+  const session = await getUserSession(request)
+  
+  return redirect(`/home`, {
+    headers: {
+      'Set-Cookie': await storage.destroySession(session)
     }
   })
 }
