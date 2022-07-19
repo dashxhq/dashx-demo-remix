@@ -58,38 +58,6 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
-
-  const ifExistingUser = await db.user.findFirst({ where: { email } })
-
-  if (ifExistingUser) {
-    return {
-      fields,
-      formError: `User with email ${email} already exists`
-    }
-  }
-
-  const user = await register({ firstName, lastName, email, password })
-
-  if (!user) {
-    return {
-      fields,
-      formError: `Something went wrong trying to create a new user.`
-    }
-  }
-  const userData = { firstName, lastName, email }
-  
-  try { 
-    await dashx.identify(user.id, userData)
-    await dashx.track('User Registered', user.id, userData)
-  }
-  catch (error) {
-    return {
-      fields,
-      formError: `Something went wrong with DashX API.`
-    }
-  }
-
-  return 'User Registered'
 }
 
 const Register = () => {
