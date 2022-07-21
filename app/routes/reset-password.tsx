@@ -1,8 +1,7 @@
 import { Link, useActionData, useSearchParams } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 
-import { resetPassword } from '~/utils/session.server'
+import { badRequest, resetPassword } from '~/utils/session.server'
 import { validateEmail, validatePassword } from '~/utils/validation'
 
 import FormHeader from '../components/FormHeader'
@@ -10,20 +9,6 @@ import AlertBox from '../components/AlertBox'
 import SuccessBox from '../components/SuccessBox'
 import Input from '../components/Input'
 import Button from '../components/Button'
-
-type ActionData = {
-  formError?: string
-  fieldErrors?: {
-    email: string | undefined
-    password: string | undefined
-  }
-  fields?: {
-    email: string
-    password: string
-  }
-}
-
-const badRequest = (data: ActionData) => json(data, { status: 400 })
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()

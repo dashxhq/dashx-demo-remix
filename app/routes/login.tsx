@@ -1,28 +1,13 @@
 import type { ActionFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
-import { useActionData, Link, useSearchParams } from '@remix-run/react'
+import { useActionData, Link } from '@remix-run/react'
 
-import { login } from '~/utils/session.server'
+import { badRequest, login } from '~/utils/session.server'
 import { validateEmail, validatePassword } from '~/utils/validation'
 
 import AlertBox from '../components/AlertBox'
 import Button from '../components/Button'
 import FormHeader from '../components/FormHeader'
 import Input from '../components/Input'
-
-type ActionData = {
-  formError?: string
-  fieldErrors?: {
-    email: string | undefined
-    password: string | undefined
-  }
-  fields?: {
-    email: string
-    password: string
-  }
-}
-
-const badRequest = (data: ActionData) => json(data, { status: 400 })
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
@@ -57,7 +42,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Login = () => {
   const actionData = useActionData()
-  const [searchParams] = useSearchParams()
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
