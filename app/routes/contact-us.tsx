@@ -62,11 +62,15 @@ const Contact = () => {
                   label="Email"
                   type="email"
                   name="email"
+                  minLength="3"
+                  required
                   error={actionData?.fieldErrors?.email}
                 />
                 <TextArea
                   label="Send us a message"
                   name="feedback"
+                  required
+                  minLength="10"
                   error={actionData?.fieldErrors?.feedback}
                 />
 

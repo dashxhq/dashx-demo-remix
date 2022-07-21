@@ -62,24 +62,30 @@ const Register = () => {
                   label="First Name"
                   type="text"
                   name="firstname"
+                  minLength="3"
+                  required
                   error={actionData?.fieldErrors?.firstName}
                 />
                 <Input
                   label="Last Name"
                   type="text"
                   name="lastname"
+                  minLength="3"
+                  required
                   error={actionData?.fieldErrors?.lastName}
                 />
                 <Input
                   label="Email"
                   type="email"
                   name="email"
+                  required
                   error={actionData?.fieldErrors?.email}
                 />
                 <Input
                   label="Password"
                   type="password"
                   name="password"
+                  required
                   error={actionData?.fieldErrors?.password}
                 />
 
