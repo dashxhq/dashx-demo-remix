@@ -44,16 +44,8 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
 
-  const error = await resetPassword({ email, password })
+  return resetPassword({ email, password })
 
-  if (error) {
-    return {
-      fields,
-      formError: error
-    }
-  }
-
-  return { successMessage : 'Password changed successfully' }
 }
 
 const ResetPassword = () => {
