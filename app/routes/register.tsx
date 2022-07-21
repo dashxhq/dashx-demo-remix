@@ -1,16 +1,14 @@
-import { useActionData, Link, useTransition } from '@remix-run/react'
+import { useActionData, Form, Link, useTransition } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 
-import dashx from '~/utils/dashx'
-import { db } from '~/utils/db.server'
 import { validateEmail, validatePassword, validateName } from '~/utils/validation'
-import { register } from '~/utils/session.server'
 
 import Button from '../components/Button'
 import Input from '../components/Input'
 import AlertBox from '../components/AlertBox'
 import FormHeader from '../components/FormHeader'
+import { register } from '~/utils/session.server'
 
 type ActionData = {
   formError?: string
@@ -31,7 +29,7 @@ type ActionData = {
 const badRequest = (data: ActionData) => json(data, { status: 400 })
 
 export const action: ActionFunction = async ({ request }) => {
-  const form: FormData = await request.formData()
+  const form = await request.formData()
 
   const firstName = form.get('firstname')
   const lastName = form.get('lastname')
@@ -51,62 +49,72 @@ export const action: ActionFunction = async ({ request }) => {
 
   const fields = { firstName, lastName, email, password }
   const fieldErrors = {
-    firstName: validateName(firstName, 'firstName'),
-    lastName: validateName(lastName, 'lastName'),
+    firstName: validateName(firstName, 'First Name'),
+    lastName: validateName(lastName, 'Last Name'),
     email: validateEmail(email),
     password: validatePassword(password)
   }
 
   if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
+
+  return register({ firstName, lastName, email, password })
 }
 
 const Register = () => {
   const actionData = useActionData()
+  const { state } = useTransition()
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 h-screen font-poppins bg-gray-50">
       <FormHeader>Register for an account</FormHeader>
       {actionData?.formError && (
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <AlertBox alertMessage={actionData?.formError} />
         </div>
       )}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md rounded bg-white shadow-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md rounded bg-white shadow shadow-md">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="py-8 px-4 sm:px-10">
-            <form method="post">
-              <Input
-                label="First Name"
-                type="text"
-                name="firstname"
-                error={actionData?.fieldErrors?.firstName}
-              />
-              <Input
-                label="Last Name"
-                type="text"
-                name="lastname"
-                error={actionData?.fieldErrors?.lastName}
-              />
-              <Input
-                label="Email"
-                type="email"
-                name="email"
-                error={actionData?.fieldErrors?.email}
-              />
-              <Input
-                label="Password"
-                type="password"
-                name="password"
-                error={actionData?.fieldErrors?.password}
-              />
+            <Form method="post">
+              <fieldset disabled={state === 'submitting'}>
+                <Input
+                  label="First Name"
+                  type="text"
+                  name="firstname"
+                  error={actionData?.fieldErrors?.firstName}
+                />
+                <Input
+                  label="Last Name"
+                  type="text"
+                  name="lastname"
+                  error={actionData?.fieldErrors?.lastName}
+                />
+                <Input
+                  label="Email"
+                  type="email"
+                  name="email"
+                  error={actionData?.fieldErrors?.email}
+                />
+                <Input
+                  label="Password"
+                  type="password"
+                  name="password"
+                  error={actionData?.fieldErrors?.password}
+                />
 
-              <div className="mt-7">
-                <Button type="submit" label="Register" message="Signing up" />
-                <Link to="/login">
-                  <Button label="Login" variant="outlined" loading={false} classes="mt-3" />
-                </Link>
-              </div>
-            </form>
+                <div className="mt-7">
+                  <Button
+                    type="submit"
+                    label="Register"
+                    loading={state === 'submitting'}
+                    message="Signing up"
+                  />
+                  <Link to="/login">
+                    <Button label="Login" variant="outlined" loading={false} classes="mt-3" />
+                  </Link>
+                </div>
+              </fieldset>
+            </Form>
           </div>
         </div>
       </div>
