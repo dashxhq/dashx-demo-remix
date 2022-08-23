@@ -11,20 +11,20 @@ const sessionSecret = process.env.JWT_SECRET || ''
 
 const badRequest = (data: ActionData) => json(data, { status: 400 })
 
-const register = async ({ firstName, lastName, email, password }: RequestType) => {
-  if (!firstName || !lastName || !email || !password) {
+const register = async ({ first_name, last_name, email, password }: RequestType) => {
+  if (!first_name || !last_name || !email || !password) {
     return json({ message: 'All fields are required.' }, 422)
   }
 
   try {
-    const passwordHash: string = await bcrypt.hash(password, 10)
-    const user = await db.user.create({
-      data: { firstName, lastName, email, passwordHash }
+    const encrypted_password: string = await bcrypt.hash(password, 10)
+    const user = await db.users.create({
+      data: { first_name, last_name, email, encrypted_password }
     })
 
     const userData = {
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.first_name,
+      lastName: user.last_name,
       email: user.email
     }
 
@@ -43,30 +43,30 @@ const register = async ({ firstName, lastName, email, password }: RequestType) =
 }
 
 const login = async ({ email, password = '' }: RequestType) => {
-  let existingUser = await db.user.findFirst({ where: { email } })
+  let existingUser = await db.users.findUnique({ where: { email } })
   if (!existingUser) return null
 
-  const passwordsMatch = await bcrypt.compare(password, existingUser.passwordHash)
+  const passwordsMatch = await bcrypt.compare(password, existingUser.encrypted_password as string)
   if (!passwordsMatch) return null
 
   return existingUser
 }
 
 const resetPassword = async ({ email, password = '' }: RequestType) => {
-  const passwordHash = await bcrypt.hash(password, 10)
-  const existingUser = await db.user.findFirst({ where: { email } })
+  const encrypted_password = await bcrypt.hash(password, 10)
+  const existingUser = await db.users.findFirst({ where: { email } })
 
   if (!existingUser) {
     return json({ message: 'This email does not exist in our records.' }, 404)
   }
 
-  const isPasswordSameAsExistingPassword = await bcrypt.compare(password, existingUser.passwordHash)
+  const isPasswordSameAsExistingPassword = await bcrypt.compare(password, existingUser.encrypted_password as string)
 
   if (isPasswordSameAsExistingPassword) {
     return json({ message: 'Entered password is same a previous password' }, 404)
   }
 
-  await db.user.update({ where: { email }, data: { passwordHash } })
+  await db.users.update({ where: { email }, data: { encrypted_password } })
 
   return null
 }
@@ -115,7 +115,7 @@ const forgotPassword = async (email: string) => {
   }
 
   try {
-    const user = await db.user.findUnique({ where: { email } })
+    const user = await db.users.findUnique({ where: { email } })
     if (!user) {
       return json({ message: 'This email does not exist in our records.' }, 404)
     }

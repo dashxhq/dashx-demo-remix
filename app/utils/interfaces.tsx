@@ -19,8 +19,8 @@ export type ActionData = {
   }
 
 export type RequestType = {
-    firstName?: string
-    lastName?: string
+    first_name?: string
+    last_name?: string
     name?: string
     email: string
     password?: string

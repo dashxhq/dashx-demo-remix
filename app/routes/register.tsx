@@ -12,14 +12,14 @@ import { badRequest, register } from '~/utils/session.server'
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
 
-  const firstName = form.get('firstname')
-  const lastName = form.get('lastname')
+  const first_name = form.get('first_name')
+  const last_name = form.get('last_name')
   const email = form.get('email')
   const password = form.get('password')
 
   if (
-    typeof firstName !== 'string' ||
-    typeof lastName !== 'string' ||
+    typeof first_name !== 'string' ||
+    typeof last_name !== 'string' ||
     typeof email !== 'string' ||
     typeof password !== 'string'
   ) {
@@ -28,17 +28,17 @@ export const action: ActionFunction = async ({ request }) => {
     })
   }
 
-  const fields = { firstName, lastName, email, password }
+  const fields = { first_name, last_name, email, password }
   const fieldErrors = {
-    firstName: validateName(firstName, 'First Name'),
-    lastName: validateName(lastName, 'Last Name'),
+    first_name: validateName(first_name, 'First Name'),
+    last_name: validateName(last_name, 'Last Name'),
     email: validateEmail(email),
     password: validatePassword(password)
   }
 
   if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
 
-  return register({ firstName, lastName, email, password })
+  return register({ first_name, last_name, email, password })
 }
 
 const Register = () => {
@@ -61,18 +61,18 @@ const Register = () => {
                 <Input
                   label="First Name"
                   type="text"
-                  name="firstname"
+                  name="first_name"
                   minLength="3"
                   required
-                  error={actionData?.fieldErrors?.firstName}
+                  error={actionData?.fieldErrors?.first_name}
                 />
                 <Input
                   label="Last Name"
                   type="text"
-                  name="lastname"
+                  name="last_name"
                   minLength="3"
                   required
-                  error={actionData?.fieldErrors?.lastName}
+                  error={actionData?.fieldErrors?.last_name}
                 />
                 <Input
                   label="Email"

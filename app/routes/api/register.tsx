@@ -8,7 +8,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ message: 'Method not allowed' }, 405)
   }
 
-  const { firstName, lastName, email, password } = await request.json()
+  const { first_name, last_name, email, password } = await request.json()
 
-  return register({ firstName, lastName, email, password })
+  return register({ first_name, last_name, email, password })
 }
