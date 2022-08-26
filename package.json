@@ -13,14 +13,19 @@
     "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css"
   },
   "dependencies": {
+    "@dashx/browser": "^0.1.27",
     "@dashx/node": "^0.1.30",
+    "@headlessui/react": "^1.6.6",
+    "@heroicons/react": "^1.0.6",
     "@prisma/client": "^4.0.0",
     "@remix-run/node": "^1.6.3",
     "@remix-run/react": "^1.6.3",
     "@remix-run/serve": "^1.6.3",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
+    "classnames": "^2.3.1",
     "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
     "npm-run-all": "^4.1.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
