@@ -1,13 +1,23 @@
 import { useActionData, Form, Link, useTransition } from '@remix-run/react'
-import type { ActionFunction } from '@remix-run/node'
-
-import { validateEmail, validatePassword, validateName } from '~/utils/validation'
+import type { ActionFunction, LoaderFunction} from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 
 import Button from '../components/Button'
 import Input from '../components/Input'
 import AlertBox from '../components/AlertBox'
 import FormHeader from '../components/FormHeader'
-import { badRequest, register } from '~/utils/session.server'
+import { badRequest, register } from '~/models/user.server'
+import { getUser } from '~/utils/session.server'
+import { validateEmail, validatePassword, validateName } from '~/utils/validation'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUser(request)
+  if (user) {
+    return redirect('/home')
+  }
+  
+  return null
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()

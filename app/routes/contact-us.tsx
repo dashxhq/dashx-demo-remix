@@ -1,15 +1,14 @@
 import { Form, Link, useActionData, useTransition } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
-import { badRequest, contactUs } from '~/utils/session.server'
-import { validateEmail, validateName } from '~/utils/validation'
-
 import AlertBox from '../components/AlertBox'
 import Button from '../components/Button'
 import FormHeader from '../components/FormHeader'
 import Input from '../components/Input'
-import TextArea from '../components/TextArea'
 import SuccessBox from '../components/SuccessBox'
+import TextArea from '../components/TextArea'
+import { badRequest, contactUs } from '~/models/user.server'
+import { validateEmail, validateName } from '~/utils/validation'
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()

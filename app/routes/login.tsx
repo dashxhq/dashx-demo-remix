@@ -1,13 +1,24 @@
-import type { ActionFunction } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { useActionData, Link } from '@remix-run/react'
+import type { ActionFunction, LoaderFunction} from '@remix-run/node'
 
-import { badRequest, login } from '~/utils/session.server'
+import { badRequest, login } from '~/models/user.server'
+import { createUserSession, getUser } from '~/utils/session.server'
 import { validateEmail, validatePassword } from '~/utils/validation'
 
 import AlertBox from '../components/AlertBox'
 import Button from '../components/Button'
 import FormHeader from '../components/FormHeader'
 import Input from '../components/Input'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUser(request)
+  if (user) {
+    return redirect('/home')
+  }
+  
+  return null
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
@@ -27,17 +38,15 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
-
-  let user = await login({ email, password })
-
-  if (!user) {
+  let token = await login({ email, password })
+  if (!token) {
     return {
       fields,
-      formError: `Username/Password combination is incorrect`
+      formError: `Incorrect email or password.`
     }
   }
 
-  return null
+  return createUserSession(token,'/home')
 }
 
 const Login = () => {

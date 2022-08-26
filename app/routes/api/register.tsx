@@ -1,7 +1,7 @@
 import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 
-import { register } from '~/utils/session.server'
+import { register } from '~/models/user.server'
 
 export const action: ActionFunction = async ({ request }) => {
   if (request.method !== 'POST') {
