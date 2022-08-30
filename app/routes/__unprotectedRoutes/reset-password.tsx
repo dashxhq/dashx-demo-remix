@@ -1,11 +1,11 @@
 import { Link, useActionData } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
-import AlertBox from '../components/AlertBox'
-import Button from '../components/Button'
-import FormHeader from '../components/FormHeader'
-import Input from '../components/Input'
-import SuccessBox from '../components/SuccessBox'
+import AlertBox from '../../components/AlertBox'
+import Button from '../../components/Button'
+import FormHeader from '../../components/FormHeader'
+import Input from '../../components/Input'
+import SuccessBox from '../../components/SuccessBox'
 import { badRequest, resetPassword } from '~/models/user.server'
 import { validateEmail, validatePassword } from '~/utils/validation'
 
