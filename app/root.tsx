@@ -1,15 +1,18 @@
 import type { MetaFunction } from "@remix-run/node"
+import { json } from "@remix-run/node"
 import {
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLoaderData
 } from "@remix-run/react"
 
 import styles from "./styles/app.css"
 import dashXlogo from "../public/dashx_logo.svg"
+import CurrentUserProvider from './contexts/CurrentUserContext'
 
 export function links() {
   return [
@@ -26,7 +29,19 @@ export const meta: MetaFunction = () => ({
   description: "DashX Demo App using Remix.js"
 })
 
+export async function loader() {
+  const env = {
+    DASHX_BASE_URI: process.env.DASHX_BASE_URI,
+    DASHX_PUBLIC_KEY: process.env.DASHX_PUBLIC_KEY,
+    DASHX_TARGET_ENVIRONMENT: process.env.DASHX_TARGET_ENVIRONMENT
+  }
+
+  return json(env)
+}
+
 export default function App() {
+  const env = useLoaderData()
+
   return (
     <html lang="en">
       <head>
@@ -34,7 +49,14 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <CurrentUserProvider>
         <Outlet />
+        </CurrentUserProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.env = ${JSON.stringify(env)}`
+          }}
+        />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
