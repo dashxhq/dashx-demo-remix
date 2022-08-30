@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { json } from '@remix-run/node'
 import { Prisma } from '@prisma/client'
 
-import { dx } from '~/utils/dashx'
+import dx from '~/utils/dashx.server'
 import { db } from '~/utils/db.server'
 import type { ActionData, RequestType } from '../utils/interfaces'
 
