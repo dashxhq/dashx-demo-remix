@@ -1,24 +1,25 @@
-import { Outlet, useLocation } from '@remix-run/react'
+import { useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 
-import  { useCurrentUserContext } from '~/contexts/CurrentUserContext'
 import Navbar from '~/components/Navbar'
 import Sidebar from '~/components/Sidebar'
-import { Navigate } from 'react-router-dom'
+import { getUser } from '~/utils/session.server'
+import type { LoaderFunction } from '@remix-run/server-runtime'
+import Content from '~/components/Content'
+
+export const loader:LoaderFunction = async ({ request }) => {
+  const user = await getUser(request)
+  return user
+}
 
 const ProtectedRoutes = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const location = useLocation()
-  const { user }: any = useCurrentUserContext()
-  if(!user){
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />
-  }
-
+  const { user } = useLoaderData()
   return (
     <>
       <Sidebar setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
-      <Navbar setSidebarOpen={setSidebarOpen} />
-      <Outlet />
+      <Navbar user={user} setSidebarOpen={setSidebarOpen} />
+      <Content/>
     </>
   )
 }

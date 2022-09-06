@@ -1,4 +1,4 @@
-import { useActionData, Link, useNavigate, useLocation } from '@remix-run/react'
+import { useActionData, Link } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
 import { badRequest, login } from '~/models/user.server'
@@ -8,8 +8,7 @@ import AlertBox from '~/components/AlertBox'
 import Button from '~/components/Button'
 import FormHeader from '~/components/FormHeader'
 import Input from '~/components/Input'
-import { useCurrentUserContext } from '~/contexts/CurrentUserContext'
-import { useEffect } from 'react'
+import { createUserSession } from '~/utils/session.server'
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
@@ -37,24 +36,11 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  return token
+  return createUserSession(token, '/home')
 }
 
 const Login = () => {
   const actionData = useActionData()
-  const navigate = useNavigate()
-  const location = useLocation()
-  //@ts-ignore
-  const redirectPath = location?.state?.from || '/home'
-  const { login } : any = useCurrentUserContext()
-
-  useEffect(() => {
-    if(actionData) {
-      login(actionData)
-      navigate(redirectPath, { replace: true })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
   
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">

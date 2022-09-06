@@ -12,7 +12,6 @@ import {
 
 import styles from "./styles/app.css"
 import dashXlogo from "../public/dashx_logo.svg"
-import CurrentUserProvider from './contexts/CurrentUserContext'
 
 export function links() {
   return [
@@ -49,9 +48,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <CurrentUserProvider>
         <Outlet />
-        </CurrentUserProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `window.env = ${JSON.stringify(env)}`

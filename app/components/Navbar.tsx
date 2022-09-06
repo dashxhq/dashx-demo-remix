@@ -2,30 +2,18 @@ import classNames from 'classnames'
 import { Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuAlt2Icon } from '@heroicons/react/outline'
 import { SearchIcon } from '@heroicons/react/solid'
-import { Fragment, useEffect } from 'react'
+import { Fragment } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 import Avatar from './Avatar'
-import { useCurrentUserContext } from '../contexts/CurrentUserContext'
 
 const userNavigation = [
   { name: 'Profile', href: '/update-profile' },
   { name: 'Settings', href: '/settings' }
 ]
 
-const Navbar = ({ setSidebarOpen }: any) => {
+const Navbar = ({ setSidebarOpen, user }: any) => {
   const navigate = useNavigate()
-  const { logout, user, setUser }:any = useCurrentUserContext()
-
-  // useEffect(() => {
-  //   const getProfile = async () => {
-  //     const { data: { user } = {} } = await api.get('/profile')
-  //     setUser(user)
-  //   }
-
-  //   getProfile()
-  // }, [])
-
 
   return (
     <div className="md:pl-64 flex flex-col">
@@ -110,8 +98,7 @@ const Navbar = ({ setSidebarOpen }: any) => {
                   <button
                     className="block px-4 py-2 flex text-sm text-gray-700 w-full text-left hover:bg-gray-100"
                     onClick={() => {
-                      logout()
-                      navigate('/login')
+                      navigate('/logout')
                     }}
                   >
                     <Link to="#">Logout</Link>

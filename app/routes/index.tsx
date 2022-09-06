@@ -1,13 +1,5 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { redirect } from '@remix-run/server-runtime'
 
-const Index = () => {
-  const navigate = useNavigate()
-  useEffect(()=>{
-    navigate('/home')
-  })
-  
- return null 
+export async function loader() {
+  return redirect('/home')
 }
-
-export default Index

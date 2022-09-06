@@ -1,13 +1,18 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { useCurrentUserContext } from '~/contexts/CurrentUserContext'
+import type { LoaderFunction} from '@remix-run/server-runtime'
+import { redirect } from '@remix-run/server-runtime'
+import { Outlet } from 'react-router-dom'
 
-const UnprotectedRoutes = () => {
-  const { user }: any = useCurrentUserContext()
-  if (user) {
-    return <Navigate to="/home" replace />
+import { getUser } from '~/utils/session.server'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const { user }: any = await getUser(request)
+  if(user) {
+    return redirect('/home')
   }
 
-  return <Outlet />
+  return null
 }
+
+const UnprotectedRoutes = () =>  <Outlet />
 
 export default UnprotectedRoutes
