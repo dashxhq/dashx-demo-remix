@@ -17,7 +17,7 @@ const validateName = (name: any, type: string) => {
 const validatePassword = (password: any) => {
   if (!password) {
     return 'Password is required'
-  } else if (typeof password !== 'string' || password.length < 6) {
+  } else if (typeof password !== 'string' || password.length < 4) {
     return `Passwords must be at least 6 characters long`
   }
 }
