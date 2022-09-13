@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { Prisma } from '@prisma/client'
 
 import dx from '~/utils/dashx.server'
@@ -31,7 +31,7 @@ const register = async ({ first_name, last_name, email, password }: RequestType)
     await dx.identify(user.id, userData)
     await dx.track('User Registered', user.id, userData)
 
-    return json({ success: 'User Registered' }, 201)
+    return redirect('/login')
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002' && error.meta?.target == 'email') {
@@ -71,7 +71,10 @@ const resetPassword = async ({ email, password = '' }: RequestType) => {
     return json({ message: 'This email does not exist in our records.' }, 404)
   }
 
-  const isPasswordSameAsExistingPassword = await bcrypt.compare(password, existingUser.encrypted_password as string)
+  const isPasswordSameAsExistingPassword = await bcrypt.compare(
+    password,
+    existingUser.encrypted_password as string
+  )
 
   if (isPasswordSameAsExistingPassword) {
     return json({ message: 'Entered password is same a previous password' }, 404)

@@ -1,31 +1,31 @@
+import React from 'react'
 import Loader from './Loader'
-interface ButtonProps  {
-  [ key: string ] : any
-}
 
 const buttonClass =
-  'group relative w-full flex hover:bg-indigo-500 gap-3 justify-center py-2 px-4 border border-transparent text-sm font-medium text-base rounded-md hover:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 mt-2 transition duration-300 text-indigo-500'
+  'group relative w-full hover:bg-indigo-500 gap-3 justify-center py-2 px-4 border border-transparent text-sm font-medium text-base rounded-md hover:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition duration-300 text-indigo-500'
 
-const Button: React.FC<ButtonProps> = ({
+const Button = ({
   children,
   type = 'button',
   variant,
   label,
-  handleSubmit,
   loading,
   message,
-  classes
-}) => {
+  onClick,
+  classes,
+  disabled
+}: any) => {
   return (
     <button
       className={`
         ${buttonClass}
         ${variant !== 'outlined' ? 'bg-indigo-600' : 'border-indigo-500'}
+        ${disabled ? 'pointer-events-none bg-indigo-300' : ''}
         ${classes}
       `}
       type={type}
-      onClick={handleSubmit}
-      disabled={loading}
+      onClick={onClick}
+      disabled={loading || disabled}
     >
       {loading ? (
         <Loader message={message} />
