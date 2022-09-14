@@ -1,5 +1,6 @@
 import { json } from '@remix-run/server-runtime'
 
+import dx from '~/utils/dashx.server'
 import { db } from '~/utils/db.server'
 
 const getPosts = async (user: any) => {
@@ -36,17 +37,18 @@ const getPosts = async (user: any) => {
   }
 }
 
-const createPost = async (user: any, post: any) => {
+const createPost = async (user: any, postData: any) => {
   try {
-    const newPost = await db.posts.create({
+    const post = await db.posts.create({
       data: {
         user_id: user.id,
-        text: post.text,
-        image: post?.image,
-        video: post?.video      }
+        text: postData.text,
+        image: postData?.image,
+        video: postData?.video      }
     })
 
-    return newPost
+    dx.track('Post Created', user.id, post)
+    return post
   } catch (error) {
     return json({ message: error }, 500)
   }
