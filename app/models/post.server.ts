@@ -1,4 +1,5 @@
 import { json } from '@remix-run/server-runtime'
+
 import { db } from '~/utils/db.server'
 
 const getPosts = async (user: any) => {
@@ -25,7 +26,8 @@ const getPosts = async (user: any) => {
             user_id: user.id
           }
         }
-      }
+      },
+      orderBy: {id: 'desc'}
     })
 
     return posts
@@ -34,4 +36,20 @@ const getPosts = async (user: any) => {
   }
 }
 
-export { getPosts }
+const createPost = async (user: any, post: any) => {
+  try {
+    const newPost = await db.posts.create({
+      data: {
+        user_id: user.id,
+        text: post.text,
+        image: post?.image,
+        video: post?.video      }
+    })
+
+    return newPost
+  } catch (error) {
+    return json({ message: error }, 500)
+  }
+}
+
+export { getPosts, createPost }

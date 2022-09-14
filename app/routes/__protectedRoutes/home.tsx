@@ -1,70 +1,52 @@
-// import React, { useState } from 'react'
-
-import Modal from '~/components/Modal'
-import Button from '../../components/Button'
-// import AlertBox from '../../components/AlertBox'
-// import Post from '../components/Post'
-import { useLoaderData } from '@remix-run/react'
-import type { LoaderFunction} from '@remix-run/server-runtime';
-import { json, redirect } from '@remix-run/server-runtime'
 import { useState } from 'react'
+import { useActionData, useLoaderData } from '@remix-run/react'
+import type { ActionFunction, LoaderFunction } from '@remix-run/server-runtime'
+import { json } from '@remix-run/server-runtime'
+
 import AlertBox from '~/components/AlertBox'
+import Button from '../../components/Button'
+import dayjs from '~/utils/dayjs'
+import EmptyPage from '~/components/EmptyPage'
 import Loader from '~/components/Loader'
-// import { useCurrentUserContext } from '~/contexts/CurrentUserContext'
+import Modal from '~/components/Modal'
+import Post from '~/components/Post'
 import { getPosts } from '~/models/post.server'
 import { getUser } from '~/utils/session.server'
-import EmptyPage from '~/components/EmptyPage'
-import Post from '~/components/Post'
+import { createPost } from '~/models/post.server'
 
-import dayjs from '~/utils/dayjs'
-
-export const loader:LoaderFunction = async ({request}) => {
+export const loader: LoaderFunction = async ({ request }) => {
   try {
-    await getUser(request)
-    const posts = await getPosts()
-    return json(posts,200)
-    
+    const { user }: any = await getUser(request)
+    const posts = await getPosts(user)
+    return json(posts, 200)
   } catch (error) {
     console.log(error)
     return json([], 200)
   }
 }
 
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+  if (formData.get('_method') === 'createPost') {
+    try {
+      const post = {
+        text: formData.get('text')
+      }
+
+      const { user }: any = await getUser(request)
+      const newPost = await createPost(user, post)
+      return newPost
+    } catch (errors) {
+      return { errors }
+    }
+  }
+}
+
 const Home = () => {
   const posts = useLoaderData()
-
   const [postsList, setPostsList] = useState(posts)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [error, setError] = useState('')
-  // const [fetchingPosts, setFetchingPosts] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  // const fetchPosts = async () => {
-  //   setFetchingPosts(true)
-  //   try {
-  //     const { data: { posts } = {} } = await api.get('/posts')
-  //     setPostsList(posts)
-  //   } catch (error) {
-  //     setError('Unable to fetch posts.')
-  //   }
-  //   setFetchingPosts(false)
-  // }
-
-  const handleSubmit = async (values: any, resetForm: any) => {
-    setError('')
-    setLoading(true)
-
-    try {
-      // await api.post('/posts', values)
-      resetForm()
-      // await fetchPosts()
-    } catch (error) {
-      setError('Unable to create post.')
-    }
-
-    setIsModalOpen(false)
-    setLoading(false)
-  }
+  const actionData = useActionData()
 
   const toggleBookmark = async (postId: any) => {
     try {
@@ -77,13 +59,9 @@ const Home = () => {
       )
       // await api.put(`/posts/${postId}/toggle-bookmark`)
     } catch (error) {
-      setError('Unable to bookmark')
+      // setError('Unable to bookmark')
     }
   }
-
-  // useEffect(() => {
-  //   fetchPosts()
-  // }, [])
 
   return (
     <>
@@ -93,11 +71,9 @@ const Home = () => {
           <Button label="Add Post" loading={false} onClick={() => setIsModalOpen(true)} />
         </div>
       </div>
-      {error && <AlertBox alertMessage={error} />}
-      {!postsList && <Loader message='Posts being fetched'/>}
-      {!postsList.length  && (
-        <EmptyPage message="No posts" />
-      )}
+      {actionData?.errors && <AlertBox alertMessage={actionData.errors} />}
+      {!postsList && <Loader message="Posts being fetched" />}
+      {!postsList.length && <EmptyPage message="No posts" />}
       {postsList.length > 0 && (
         <div className="grid grid-cols-1 gap-3 mt-5">
           {postsList.map((post: any) => (
@@ -108,8 +84,6 @@ const Home = () => {
       <Modal
         open={isModalOpen}
         setOpen={setIsModalOpen}
-        handleSubmit={handleSubmit}
-        loading={loading}
       />
     </>
   )
