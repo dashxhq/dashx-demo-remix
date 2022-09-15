@@ -3,7 +3,7 @@ import { useFetcher } from '@remix-run/react'
 
 import dayjs from '~/utils/dayjs'
 
-const Post = ({ post }: any) => {
+const Post = ({ post, removeBookmark }: any) => {
   const {
     created_at,
     bookmarks: [bookmark],
@@ -27,10 +27,22 @@ const Post = ({ post }: any) => {
           <p className="text-sm font-medium">
             {first_name}&nbsp;{last_name}
           </p>
-          <button onClick={() => {
-            fetcher.submit({ postId: post.id, isBookmarked: bookmark?.bookmarked_at, _method: 'bookmark' }, { method: "post" })
-            bookmark.bookmarked_at= bookmark.bookmarked_at? null : new Date()
-          }}>
+          <button
+            onClick={() => {
+              fetcher.submit(
+                { postId: post.id, isBookmarked: bookmark?.bookmarked_at, _method: 'bookmark' },
+                { method: 'post' }
+              )
+              if (bookmark) {
+                removeBookmark
+                  ? removeBookmark(post.id)
+                  : (bookmark.bookmarked_at = bookmark.bookmarked_at ? null : new Date())
+              }
+              else {
+                  post.bookmarks[0] = { bookmarked_at: new Date() }
+              }
+            }}
+          >
             {bookmark?.bookmarked_at ? (
               <BookmarkIcon className="cursor-pointer text-gray-600 h-6 w-6 fill-gray-600" />
             ) : (

@@ -85,4 +85,46 @@ const toggleBookmark = async (user: any, postId: number, isBookmarked: any) =>{
   }
 }
 
-export { getPosts, createPost, toggleBookmark }
+const getBookmarkedPosts = async (user: any) => {
+  try {
+    const bookmarks = await db.bookmarks.findMany({
+      select: {
+        id: true,
+        bookmarked_at: true,
+        user_id: true,
+        post_id: true,
+        posts: {
+          select: {
+            id: true,
+            image: true,
+            video: true,
+            text: true,
+            created_at: true,
+            users: {
+              select: {
+                avatar: true,
+                first_name: true,
+                last_name: true
+              }
+            }
+          }
+        }
+      },
+      where:{
+        user_id: user.id,
+        NOT:{
+          bookmarked_at: null
+        }
+      },
+      orderBy: {id: 'desc'}
+    })
+    //@ts-ignore
+    bookmarks.map(bookmark => bookmark.posts.bookmarks =  [{bookmarked_at: bookmark.bookmarked_at }])
+
+    return bookmarks
+  } catch (error) {
+    return json({ message: error }, 500)
+  }
+}
+
+export { getPosts, createPost, toggleBookmark, getBookmarkedPosts }
