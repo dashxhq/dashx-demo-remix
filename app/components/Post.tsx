@@ -3,7 +3,7 @@ import { useFetcher } from '@remix-run/react'
 
 import dayjs from '~/utils/dayjs'
 
-const Post = ({ post, removeBookmark }: any) => {
+const Post = ({ post, toggleBookmark }: any) => {
   const {
     created_at,
     bookmarks: [bookmark],
@@ -33,14 +33,7 @@ const Post = ({ post, removeBookmark }: any) => {
                 { postId: post.id, isBookmarked: bookmark?.bookmarked_at, _method: 'bookmark' },
                 { method: 'post' }
               )
-              if (bookmark) {
-                removeBookmark
-                  ? removeBookmark(post.id)
-                  : (bookmark.bookmarked_at = bookmark.bookmarked_at ? null : new Date())
-              }
-              else {
-                  post.bookmarks[0] = { bookmarked_at: new Date() }
-              }
+              toggleBookmark(post.id)
             }}
           >
             {bookmark?.bookmarked_at ? (

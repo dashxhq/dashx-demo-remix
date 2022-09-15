@@ -49,9 +49,22 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Home = () => {
-  const posts = useLoaderData()
+  const [posts, setPosts] = useState(useLoaderData())
   const [isModalOpen, setIsModalOpen] = useState(false)
   const actionData = useActionData()
+  const toggleBookmark = (postId: any) => {
+    setPosts((posts) =>
+      //@ts-ignore
+      posts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              bookmarks: [{ bookmarked_at: !post.bookmarks[0]?.bookmarked_at ? new Date() : null }]
+            }
+          : post
+      )
+    )
+  }
 
   return (
     <>
@@ -66,8 +79,9 @@ const Home = () => {
       {!posts.length && <EmptyPage message="No posts" />}
       {posts.length > 0 && (
         <div className="grid grid-cols-1 gap-3 mt-5">
-          {posts.map((post: any) => (
-            <Post post={post} key={post.id} />
+          {//@ts-ignore
+          posts.map((post: any) => (
+            <Post post={post} key={post.id} toggleBookmark={toggleBookmark} />
           ))}
         </div>
       )}

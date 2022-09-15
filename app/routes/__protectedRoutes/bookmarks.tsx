@@ -38,10 +38,11 @@ export const action: ActionFunction = async ({ request }) => {
 const Bookmarks = () => {
   const actionData = useActionData()
   const [bookmarks, setBookmarks] = useState(useLoaderData())
-  const removeBookmark = (post_id: any) => {
+  const toggleBookmark = (post_id: any) => {
     //@ts-ignore
     setBookmarks(bookmarks?.filter((bookmark: any) => bookmark.post_id !== post_id))
   }
+  
   return (
     <>
       <div className="flex justify-between items-start mb-8">
@@ -55,7 +56,7 @@ const Bookmarks = () => {
           {
             // @ts-ignore
             bookmarks.map((bookmark: any) => (
-              <Post post={bookmark.posts} key={bookmark.posts.id} removeBookmark={removeBookmark} />
+              <Post post={bookmark.posts} key={bookmark.posts.id} toggleBookmark={toggleBookmark} />
             ))
           }
         </div>
