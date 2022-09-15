@@ -79,16 +79,15 @@ const Home = () => {
       {!posts.length && <EmptyPage message="No posts" />}
       {posts.length > 0 && (
         <div className="grid grid-cols-1 gap-3 mt-5">
-          {//@ts-ignore
-          posts.map((post: any) => (
-            <Post post={post} key={post.id} toggleBookmark={toggleBookmark} />
-          ))}
+          {
+            //@ts-ignore
+            posts.map((post: any) => (
+              <Post post={post} key={post.id} toggleBookmark={toggleBookmark} />
+            ))
+          }
         </div>
       )}
-      <Modal
-        open={isModalOpen}
-        setOpen={setIsModalOpen}
-      />
+      <Modal open={isModalOpen} setOpen={setIsModalOpen} />
     </>
   )
 }
