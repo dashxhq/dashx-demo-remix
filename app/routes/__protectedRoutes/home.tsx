@@ -5,12 +5,11 @@ import { json } from '@remix-run/server-runtime'
 
 import AlertBox from '~/components/AlertBox'
 import Button from '../../components/Button'
-import dayjs from '~/utils/dayjs'
 import EmptyPage from '~/components/EmptyPage'
 import Loader from '~/components/Loader'
 import Modal from '~/components/Modal'
 import Post from '~/components/Post'
-import { getPosts } from '~/models/post.server'
+import { getPosts, toggleBookmark } from '~/models/post.server'
 import { getUser } from '~/utils/session.server'
 import { createPost } from '~/models/post.server'
 
@@ -27,41 +26,32 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-  if (formData.get('_method') === 'createPost') {
-    try {
+  const { user }: any = await getUser(request)
+  try {
+    if (formData.get('_method') === 'bookmark') {
+      const postId = formData.get('postId')
+      const isBookmarked = formData.get('isBookmarked')
+      const bookmark = await toggleBookmark(user, Number(postId), isBookmarked)
+      return bookmark
+    }
+
+    if (formData.get('_method') === 'createPost') {
       const post = {
         text: formData.get('text')
       }
 
-      const { user }: any = await getUser(request)
       const newPost = await createPost(user, post)
       return newPost
-    } catch (errors) {
-      return { errors }
     }
+  } catch (errors) {
+    return { errors }
   }
 }
 
 const Home = () => {
   const posts = useLoaderData()
-  const [postsList, setPostsList] = useState(posts)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const actionData = useActionData()
-
-  const toggleBookmark = async (postId: any) => {
-    try {
-      setPostsList((postsList: any) =>
-        postsList.map((post: any) =>
-          post.id === postId
-            ? { ...post, bookmarked_at: !post.bookmarked_at ? dayjs().toISOString() : null }
-            : post
-        )
-      )
-      // await api.put(`/posts/${postId}/toggle-bookmark`)
-    } catch (error) {
-      // setError('Unable to bookmark')
-    }
-  }
 
   return (
     <>
@@ -72,12 +62,12 @@ const Home = () => {
         </div>
       </div>
       {actionData?.errors && <AlertBox alertMessage={actionData.errors} />}
-      {!postsList && <Loader message="Posts being fetched" />}
-      {!postsList.length && <EmptyPage message="No posts" />}
-      {postsList.length > 0 && (
+      {!posts && <Loader message="Posts being fetched" />}
+      {!posts.length && <EmptyPage message="No posts" />}
+      {posts.length > 0 && (
         <div className="grid grid-cols-1 gap-3 mt-5">
-          {postsList.map((post: any) => (
-            <Post post={post} key={post.id} toggleBookmark={() => toggleBookmark(post.id)} />
+          {posts.map((post: any) => (
+            <Post post={post} key={post.id} />
           ))}
         </div>
       )}

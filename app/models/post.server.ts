@@ -54,4 +54,35 @@ const createPost = async (user: any, postData: any) => {
   }
 }
 
-export { getPosts, createPost }
+const toggleBookmark = async (user: any, postId: number, isBookmarked: any) =>{
+  try {
+    const bookmark = await db.bookmarks.upsert({
+      where: {
+        user_id_post_id: {
+          post_id: postId,
+          user_id: user.id
+        }
+      },
+      update: {
+        bookmarked_at: isBookmarked === 'null' || isBookmarked === 'undefined'?  new Date() : null
+      },
+      create: {
+        user_id: user.id,
+        post_id: postId,
+        bookmarked_at: new Date()
+      }
+    })
+
+    if (bookmark.bookmarked_at) {
+      dx.track('Post Bookmarked', user.id, bookmark)
+    } else {
+      dx.track('Post Unbookmarked', user.id, bookmark)
+    }
+
+    return bookmark
+  } catch (error) {
+    return json({ message: error }, 500)
+  }
+}
+
+export { getPosts, createPost, toggleBookmark }

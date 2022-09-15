@@ -1,8 +1,9 @@
 import { BookmarkIcon } from '@heroicons/react/outline'
+import { useFetcher } from '@remix-run/react'
 
 import dayjs from '~/utils/dayjs'
 
-const Post = ({ post, toggleBookmark }: any) => {
+const Post = ({ post }: any) => {
   const {
     created_at,
     bookmarks: [bookmark],
@@ -12,6 +13,7 @@ const Post = ({ post, toggleBookmark }: any) => {
 
   const { first_name, last_name } = users
   const published = dayjs(created_at).fromNow()
+  const fetcher = useFetcher()
 
   return (
     <div className="relative flex gap-4 mb-4 bg-gray-50 rounded shadow-md p-4 overflow-hidden">
@@ -25,7 +27,10 @@ const Post = ({ post, toggleBookmark }: any) => {
           <p className="text-sm font-medium">
             {first_name}&nbsp;{last_name}
           </p>
-          <button onClick={toggleBookmark}>
+          <button onClick={() => {
+            fetcher.submit({ postId: post.id, isBookmarked: bookmark?.bookmarked_at, _method: 'bookmark' }, { method: "post" })
+            bookmark.bookmarked_at= bookmark.bookmarked_at? null : new Date()
+          }}>
             {bookmark?.bookmarked_at ? (
               <BookmarkIcon className="cursor-pointer text-gray-600 h-6 w-6 fill-gray-600" />
             ) : (
