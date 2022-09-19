@@ -42,12 +42,12 @@ const ResetPassword = () => {
             <SuccessBox successMessage={successMessage} />
           </div>
         )}
-        {actionData?.formError && (
+        {actionData?.message && (
           <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-            <AlertBox alertMessage={actionData?.formError} />
+            <AlertBox alertMessage={actionData?.message} />
           </div>
         )}
-        {!successMessage && !actionData?.formError && (
+        {!successMessage && !actionData?.message && (
           <form method='post'>
             <Input
               label="Email"

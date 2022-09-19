@@ -36,9 +36,9 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 m-auto lg:px-8 h-screen font-poppins bg-gray-50">
       <FormHeader>Forgot Password</FormHeader>
-      {(actionData?.formError || actionData?.message) && (
+      {(actionData?.message) && (
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-          <AlertBox alertMessage={actionData?.formError || actionData?.message} />
+          <AlertBox alertMessage={actionData?.message} />
         </div>
       )}
       <div className="sm:mx-auto sm:w-full mb-4 mt-4 sm:max-w-md rounded bg-white shadow-md p-9">

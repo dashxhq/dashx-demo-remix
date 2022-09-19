@@ -5,11 +5,9 @@ import { Prisma } from '@prisma/client'
 
 import dx from '~/utils/dashx.server'
 import { db } from '~/utils/db.server'
-import type { ActionData, RequestType } from '../utils/interfaces'
+import type { RequestType } from '../utils/interfaces'
 
 const jwtSecret = process.env.JWT_SECRET || ''
-
-const badRequest = (data: ActionData) => json(data, { status: 400 })
 
 const register = async ({ first_name, last_name, email, password }: RequestType) => {
   if (!first_name || !last_name || !email || !password) {
@@ -35,7 +33,7 @@ const register = async ({ first_name, last_name, email, password }: RequestType)
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002' && error.meta?.target == 'email') {
-        return json({ formError: 'User already registered' }, 409)
+        return json({ message: 'User already registered' }, 409)
       }
     }
     return json({ message: error }, 500)
@@ -150,4 +148,4 @@ const forgotPassword = async (email: string) => {
   }
 }
 
-export { badRequest, contactUs, forgotPassword, login, register, resetPassword }
+export { contactUs, forgotPassword, login, register, resetPassword }

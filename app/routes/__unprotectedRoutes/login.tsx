@@ -44,9 +44,9 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <FormHeader>Login to your account</FormHeader>
-      {actionData?.formError && (
+      {actionData?.message && (
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <AlertBox alertMessage={actionData?.formError} />
+          <AlertBox alertMessage={actionData?.message} />
         </div>
       )}
       <div className="sm:mx-auto sm:w-full sm:max-w-md rounded bg-white shadow-md pt-8">
