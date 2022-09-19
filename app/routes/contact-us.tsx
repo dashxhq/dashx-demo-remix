@@ -1,38 +1,34 @@
+import * as Yup from 'yup'
 import { Form, Link, useActionData, useTransition } from '@remix-run/react'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction} from '@remix-run/node'
 
-import AlertBox from '../components/AlertBox'
+import AlertBox from '~/components/AlertBox'
 import Button from '../components/Button'
 import FormHeader from '../components/FormHeader'
 import Input from '../components/Input'
 import SuccessBox from '../components/SuccessBox'
 import TextArea from '../components/TextArea'
-import { badRequest, contactUs } from '~/models/user.server'
-import { validateEmail, validateName } from '~/utils/validation'
+import { contactUs } from '~/models/user.server'
+import { validateForm } from '~/utils/validation'
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-
-  const name = form.get('name')
-  const email = form.get('email')
-  const feedback = form.get('feedback')
-
-  if (typeof name !== 'string' || typeof email !== 'string' || typeof feedback !== 'string') {
-    return badRequest({
-      formError: `Form not submitted correctly.`
+  const formData = await request.formData()
+  try {
+    const contactSchema = Yup.object({
+      name: Yup.string().required('Name is required').nullable(),
+      email: Yup.string()
+        .email('Email is not valid')
+        .required('Email is required')
+        .nullable(),
+      feedback: Yup.string().required('Feedback is required').min(10)
     })
+
+    const contactData = await validateForm(formData, contactSchema)
+    return contactUs(contactData)
+  } catch (error) {
+    //@ts-ignore
+    return { fieldErrors: error?.formError }
   }
-
-  const fields = { name, email, feedback }
-  const fieldErrors = {
-    name: validateName(name, 'Name'),
-    email: validateEmail(email),
-    feedback: validateName(feedback, 'Feedback')
-  }
-
-  if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
-
-  return contactUs({ name, email, feedback })
 }
 
 const Contact = () => {

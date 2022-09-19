@@ -35,7 +35,7 @@ const register = async ({ first_name, last_name, email, password }: RequestType)
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002' && error.meta?.target == 'email') {
-        return json({ message: 'User already registered' }, 409)
+        return json({ formError: 'User already registered' }, 409)
       }
     }
     return json({ message: error }, 500)

@@ -1,3 +1,4 @@
+import * as Yup from 'yup'
 import { Link, useActionData } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
@@ -6,30 +7,26 @@ import Button from '../../components/Button'
 import FormHeader from '../../components/FormHeader'
 import Input from '../../components/Input'
 import SuccessBox from '../../components/SuccessBox'
-import { badRequest, resetPassword } from '~/models/user.server'
-import { validateEmail, validatePassword } from '~/utils/validation'
+import { resetPassword } from '~/models/user.server'
+import { validateForm } from '~/utils/validation'
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-  const email = form.get('email')
-  const password = form.get('password')
-
-  if (typeof email !== 'string' || typeof password !== 'string') {
-    return badRequest({
-      formError: `Form not submitted correctly.`
+  const formData = await request.formData()
+  try {
+    const resetPasswordSchema = Yup.object({
+      email: Yup.string()
+        .email('Email is not valid')
+        .required('Email is required')
+        .nullable(),
+      password: Yup.string().required('Password is required').min(4)
     })
+
+    const resetPasswordData = await validateForm(formData, resetPasswordSchema)
+    return resetPassword(resetPasswordData)
+  } catch (error) {
+    //@ts-ignore
+    return { fieldErrors: error?.formError }
   }
-
-  const fields = { email, password }
-  const fieldErrors = {
-    email: validateEmail(email),
-    password: validatePassword(password)
-  }
-
-  if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
-
-  return resetPassword({ email, password })
-
 }
 
 const ResetPassword = () => {

@@ -1,3 +1,4 @@
+import * as Yup from 'yup'
 import { useActionData, Form, Link, useTransition } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
@@ -5,39 +6,28 @@ import Button from '../../components/Button'
 import Input from '../../components/Input'
 import AlertBox from '../../components/AlertBox'
 import FormHeader from '../../components/FormHeader'
-import { badRequest, register } from '~/models/user.server'
-import { validateEmail, validatePassword, validateName } from '~/utils/validation'
+import { register } from '~/models/user.server'
+import { validateForm } from '~/utils/validation'
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-
-  const first_name = form.get('first_name')
-  const last_name = form.get('last_name')
-  const email = form.get('email')
-  const password = form.get('password')
-
-  if (
-    typeof first_name !== 'string' ||
-    typeof last_name !== 'string' ||
-    typeof email !== 'string' ||
-    typeof password !== 'string'
-  ) {
-    return badRequest({
-      formError: `Form not submitted correctly.`
+  const formData = await request.formData()
+  try {
+    const registerSchema = Yup.object({
+      first_name: Yup.string().required('First name is required').min(3),
+      last_name: Yup.string().required('Last name is required').min(1),
+      email: Yup.string()
+        .email('Email is not valid')
+        .required('Email is required')
+        .nullable(),
+      password: Yup.string().required('Password is required').min(4)
     })
+
+    const registerData = await validateForm(formData, registerSchema)
+    return register(registerData)
+  } catch (error) {
+    //@ts-ignore
+    return { fieldErrors: error?.formError }
   }
-
-  const fields = { first_name, last_name, email, password }
-  const fieldErrors = {
-    first_name: validateName(first_name, 'First Name'),
-    last_name: validateName(last_name, 'Last Name'),
-    email: validateEmail(email),
-    password: validatePassword(password)
-  }
-
-  if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
-
-  return register({ first_name, last_name, email, password })
 }
 
 const Register = () => {
@@ -69,7 +59,7 @@ const Register = () => {
                   label="Last Name"
                   type="text"
                   name="last_name"
-                  minLength="3"
+                  minLength="1"
                   required
                   error={actionData?.fieldErrors?.last_name}
                 />

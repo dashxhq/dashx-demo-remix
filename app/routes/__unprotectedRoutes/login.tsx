@@ -1,8 +1,9 @@
-import { useActionData, Link } from '@remix-run/react'
+import * as Yup from 'yup'
+import { useActionData, Link, useTransition } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
-import { badRequest, login } from '~/models/user.server'
-import { validateEmail, validatePassword } from '~/utils/validation'
+import { login } from '~/models/user.server'
+import { validateForm } from '~/utils/validation'
 
 import AlertBox from '~/components/AlertBox'
 import Button from '~/components/Button'
@@ -11,37 +12,35 @@ import Input from '~/components/Input'
 import { createUserSession } from '~/utils/session.server'
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-  const email = form.get('email')
-  const password = form.get('password')
-
-  if (typeof email !== 'string' || typeof password !== 'string') {
-    return badRequest({
-      formError: `Form not submitted correctly.`
+  const formData = await request.formData()
+  try {
+    const loginSchema = Yup.object({
+      email: Yup.string()
+        .email('Email is not valid')
+        .required('Email is required')
+        .nullable(),
+      password: Yup.string().required('Password is required').min(4)
     })
-  }
 
-  const fields = { email, password }
-  const fieldErrors = {
-    email: validateEmail(email),
-    password: validatePassword(password)
-  }
-
-  if (Object.values(fieldErrors).some(Boolean)) return badRequest({ fieldErrors, fields })
-  let token = await login({ email, password })
-  if (!token) {
-    return {
-      fields,
-      formError: `Incorrect email or password.`
+    const loginData = await validateForm(formData, loginSchema)
+    let token = await login(loginData)
+    if (!token) {
+      return {
+        formError: `Incorrect email or password.`
+      }
     }
-  }
 
-  return createUserSession(token, '/home')
+    return createUserSession(token, '/home')
+  } catch (error) {
+    //@ts-ignore
+    return { fieldErrors: error?.formError }
+  }
 }
 
 const Login = () => {
   const actionData = useActionData()
-  
+  const { state } = useTransition()
+
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <FormHeader>Login to your account</FormHeader>
@@ -81,7 +80,7 @@ const Login = () => {
                 </div>
                 <div className="text-sm">
                   <Link
-                    to="forgot-password"
+                    to="/forgot-password"
                     className="font-medium text-indigo-600 hover:text-indigo-500"
                   >
                     Forgot your password?
@@ -89,8 +88,7 @@ const Login = () => {
                 </div>
               </div>
               <div className="mt-7">
-                <Button type="submit" label="Login" message="Logging in" />
-
+                <Button type="submit" label="Login" loading={state === 'submitting'} message="Logging in" />
                 <Link to="/register">
                   <Button label="Register" variant="outlined" loading={false} classes="mt-3" />
                 </Link>

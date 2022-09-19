@@ -1,33 +1,28 @@
-const validateEmail = (email: any) => {
-  if (!email) {
-    return 'Email is Required'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return 'Invalid email address'
+const validateForm = async (formData: FormData, formSchema: any) => {
+  const getValidationErrors = (err: any) => {
+    const validationErrors = {} as any
+
+    err.inner.forEach((error: any) => {
+      if (error.path) {
+        validationErrors[error.path] = error.message
+      }
+    })
+
+    return { formError: validationErrors }
+  }
+
+  const formJSON: { [key: string]: any } = {}
+  for (var key of formData.keys()) {
+    formJSON[key] = formData.get(key)
+  }
+
+  // validate the object and throw error if not valid
+  try {
+    const contactData = await formSchema.validate(formJSON, { abortEarly: false })
+    return contactData
+  } catch (error) {
+    throw getValidationErrors(error)
   }
 }
 
-const validateName = (name: any, type: string) => {
-  if (!name) {
-    return `${type} is required`
-  } else if (typeof name !== 'string' || name.length < 3) {
-    return `${type} must be at least 3 characters long`
-  }
-}
-
-const validatePassword = (password: any) => {
-  if (!password) {
-    return 'Password is required'
-  } else if (typeof password !== 'string' || password.length < 4) {
-    return `Passwords must be at least 6 characters long`
-  }
-}
-
-const validateUrl = (url: any) => {
-  let urls = ['/register', '/', 'https://dashxdemo.com']
-  if (urls.includes(url)) {
-    return '/contact-us'
-  }
-  return '/login'
-}
-
-export { validateEmail, validateName, validatePassword, validateUrl } 
+export { validateForm } 
