@@ -1,7 +1,8 @@
 import classNames from 'classnames'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, Link } from "@remix-run/react"
+import { useNavigate } from 'react-router-dom'
 import {
   HomeIcon,
   XIcon,
@@ -13,7 +14,7 @@ import {
 import DashXLogoWhite from '../../public/dashx_logo_white.png'
 
 const navigation = [
-  { name: 'Home', href: '/', icon: HomeIcon },
+  { name: 'Home', href: '/home', icon: HomeIcon },
   { name: 'Store', href: '/store', icon: DatabaseIcon },
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon },
   { name: 'Billing', href: '/billing', icon: CurrencyDollarIcon }
