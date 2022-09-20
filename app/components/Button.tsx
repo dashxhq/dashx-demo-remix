@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import Loader from './Loader'
 
 const buttonClass =
@@ -16,12 +17,12 @@ const Button = ({
 }: any) => {
   return (
     <button
-      className={`
-        ${buttonClass}
-        ${variant !== 'outlined' ? 'bg-indigo-600' : 'border-indigo-500'}
-        ${disabled ? 'pointer-events-none bg-indigo-300' : ''}
-        ${classes}
-      `}
+      className={classNames(
+        buttonClass,
+        variant !== 'outlined' ? 'bg-indigo-600' : 'border-indigo-500',
+        disabled ? 'pointer-events-none bg-indigo-300' : '',
+        classes
+      )}
       type={type}
       onClick={onClick}
       disabled={loading || disabled}
@@ -29,7 +30,7 @@ const Button = ({
       {loading ? (
         <Loader message={message} />
       ) : (
-        <p className={`${variant === 'outlined' ? 'hover:text-white' : 'text-white'}`}>{label}</p>
+        <p className={classNames(variant === 'outlined' ? 'hover:text-white' : 'text-white')}>{label}</p>
       )}
       {children}
     </button>
