@@ -14,7 +14,7 @@ const TextArea = (props: any) => {
         className={`
         max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500
         sm:text-sm border border-gray-300 rounded-md mt-1
-        ${errorClass ? 'border border-red-500' : ''}
+        ${errorClass}
         `}
       />
       {error ? (

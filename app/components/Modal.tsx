@@ -2,12 +2,11 @@ import * as Yup from 'yup'
 import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 
-import AlertBox from './AlertBox'
 import Button from './Button'
 import TextArea from './TextArea'
 
 const Modal = ({ open, setOpen }: any) => {
-  const [errors, setErrors] = useState(null)
+  const [errors, setErrors] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
   const validatePost = async (event: any) => {
@@ -82,11 +81,8 @@ const Modal = ({ open, setOpen }: any) => {
                         name="text"
                         rows={8}
                         onChange={() => setErrors(null)}
+                        error={errors?.text}
                       />
-                      {
-                        //@ts-ignore
-                        errors?.text && <AlertBox alertMessage={errors.text} />
-                      }
                       <div className="py-3 pt-5 flex gap-3 sm:gap-0 sm:flex justify-start items-start flex-row-reverse">
                         <input type="hidden" name="_method" value="createPost" />
                         <Button
