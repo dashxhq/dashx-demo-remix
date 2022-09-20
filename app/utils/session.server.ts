@@ -1,6 +1,9 @@
-import jwtDecode from 'jwt-decode'
+import jwt from 'jsonwebtoken'
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
+
 import { db } from './db.server'
+
+const jwtSecret = process.env.JWT_SECRET || ''
 
 const sessionSecret = process.env.SESSION_SECRET
 if (!sessionSecret) {
@@ -41,7 +44,7 @@ export async function getUser(request: Request) {
   const session = await getUserSession(request)
   try {
     const token = session.get('token')
-    const decodedToken = jwtDecode(token) as any
+    const decodedToken:any = jwt.verify(token, jwtSecret)
     const user = await db.users.findUnique({ where: { id: decodedToken.user.id } })
     return {user, token: decodedToken.dashx_token}
   } catch (error) {
