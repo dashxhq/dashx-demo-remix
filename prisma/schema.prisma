@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bookmarks {
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  post_id       Int
+  bookmarked_at DateTime? @default(now()) @db.Timestamp(6)
+  posts         posts     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  users         users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, post_id], map: "bookmarks_uniq_user_id_post_id")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement())
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?
+  last_used_at   DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model pgmigrations {
+  id     Int      @id @default(autoincrement())
+  name   String   @db.VarChar(255)
+  run_on DateTime @db.Timestamp(6)
+}
+
+model posts {
+  id         Int         @id @default(autoincrement())
+  user_id    Int
+  text       String
+  image      Json?
+  video      Json?
+  created_at DateTime    @default(now()) @db.Timestamp(6)
+  updated_at DateTime    @default(now()) @db.Timestamp(6)
+  users      users       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  bookmarks  bookmarks[]
+}
+
+model users {
+  id                 Int         @id @default(autoincrement())
+  first_name         String      @db.VarChar(100)
+  last_name          String      @db.VarChar(100)
+  email              String      @unique @db.VarChar(100)
+  encrypted_password String?     @db.VarChar(100)
+  created_at         DateTime    @default(now()) @db.Timestamp(6)
+  updated_at         DateTime    @default(now()) @db.Timestamp(6)
+  avatar             Json?
+  bookmarks          bookmarks[]
+  posts              posts[]
+}
